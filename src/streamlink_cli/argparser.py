@@ -1141,6 +1141,42 @@ def build_parser():
         """,
     )
     transport_ffmpeg.add_argument(
+        "--ffmpeg-dkey-0",
+        type=str,
+        metavar="DKEY",
+        help="""
+        Set the decryption key
+
+        """
+    )
+    transport_ffmpeg.add_argument(
+        "--ffmpeg-dkey-1",
+        type=str,
+        metavar="DKEY",
+        help="""
+        Set the decryption key
+
+        """
+    )
+    transport_ffmpeg.add_argument(
+        "--ffmpeg-pre-copy-cmd",
+        type=str,
+        metavar="FFMPEG-COMMANDS",
+        help="""
+        Set the custom commands
+
+        """
+    )
+    transport_ffmpeg.add_argument(
+        "--ffmpeg-post-copy-cmd",
+        type=str,
+        metavar="FFMPEG-COMMANDS",
+        help="""
+        Set the custom commands
+
+        """
+    )
+    transport_ffmpeg.add_argument(
         "--ffmpeg-video-transcode",
         metavar="CODEC",
         help="""
@@ -1421,6 +1457,10 @@ _ARGUMENT_TO_SESSIONOPTION: List[Tuple[str, str, Optional[Callable[[Any], Any]]]
     ("ffmpeg_verbose", "ffmpeg-verbose", None),
     ("ffmpeg_verbose_path", "ffmpeg-verbose-path", None),
     ("ffmpeg_fout", "ffmpeg-fout", None),
+    ("ffmpeg_dkey_0", "ffmpeg-dkey-0", None),
+    ("ffmpeg_dkey_1", "ffmpeg-dkey-1", None),
+    ("ffmpeg_pre_copy_cmd", "ffmpeg-pre-copy-cmd", None),
+    ("ffmpeg_post_copy_cmd", "ffmpeg-post-copy-cmd", None),
     ("ffmpeg_video_transcode", "ffmpeg-video-transcode", None),
     ("ffmpeg_audio_transcode", "ffmpeg-audio-transcode", None),
     ("ffmpeg_copyts", "ffmpeg-copyts", None),

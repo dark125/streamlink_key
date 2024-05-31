@@ -180,13 +180,44 @@ class FFMPEGMuxer(StreamIO):
         maps = options.pop("maps", [])
         copyts = session.options.get("ffmpeg-copyts") or options.pop("copyts", False)
         start_at_zero = session.options.get("ffmpeg-start-at-zero") or options.pop("start_at_zero", False)
+        custom_ffmpeg_cmd_pre = session.options.get("ffmpeg-pre-copy-cmd") or options.pop("ffmpeg-pre-copy-cmd", None) #-map 0:v -map 1:a
+        custom_ffmpeg_cmd_post = session.options.get("ffmpeg-post-copy-cmd") or options.pop("ffmpeg-post-copy-cmd", None)
 
         self._cmd = [self.command(session), "-nostats", "-y"]
-        for np in self.pipes:
+        default_dkey = session.options.get("ffmpeg-dkey-0") or options.pop("ffmpeg-dkey-0", None)
+
+        for index, np in enumerate(self.pipes):
+            log.debug(f"Index: {index}, Pipe: {np}")
+            dkey = session.options.get(f"ffmpeg-dkey-{index}") or options.pop(f"ffmpeg-dkey-{index}", default_dkey)
+            log.debug(f"Dkey: {dkey}")
+            if dkey:
+                self._cmd.extend(['-decryption_key', dkey])
+                self._cmd.extend(['-thread_queue_size', '4096'])
+
+            # Before modifying the code, ensure that 'custom_ffmpeg_cmd_pre' is a list.
+            if custom_ffmpeg_cmd_pre:
+                # Split the commands by commas and remove any leading or trailing whitespace from each command.
+                custom_ffmpeg_cmd_pres = [cmd.strip() for cmd in custom_ffmpeg_cmd_pre.split(",")]
+
+                # Then, iterate over the list of commands and add them to the ffmpeg command.
+                for cmd in custom_ffmpeg_cmd_pres:
+                    log.debug(f"Custom cmd pre copy: {cmd.split()}")
+                    self._cmd.extend(cmd.split())
+
             self._cmd.extend(["-i", str(np.path)])
 
         self._cmd.extend(["-c:v", videocodec])
         self._cmd.extend(["-c:a", audiocodec])
+
+        # Before modifying the code, ensure that 'custom_ffmpeg_cmd_post' is a list.
+        if custom_ffmpeg_cmd_post:
+            # Split the commands by commas and remove any leading or trailing whitespace from each command.
+            custom_ffmpeg_cmd_posts = [cmd.strip() for cmd in custom_ffmpeg_cmd_post.split(",")]
+
+            # Then, iterate over the list of commands and add them to the ffmpeg command.
+            for cmd in custom_ffmpeg_cmd_posts:
+                log.debug(f"Custom cmd post copy: {cmd.split()}")
+                self._cmd.extend(cmd.split())
 
         for m in maps:
             self._cmd.extend(["-map", str(m)])
